@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 import os
 from pathlib import Path
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -124,6 +125,12 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-API_END_POINT = 'http://localhost:8900'
+API_END_POINT = config('API_END_POINT')
+
+PRODUCTION = config('PRODUCTION')
 
 SUCCESS_CODES = [200, 201]
+
+if PRODUCTION:
+    import django_heroku
+    django_heroku.settings(locals())
