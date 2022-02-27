@@ -1,0 +1,23 @@
+{% if form.errors %}
+    <div class="alert alert-danger alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span> &times; </span></button>
+        {% for field in form %}
+            {% for error in field.errors %}
+                    {{ field.name|capfirst }} field. {{ error|escape }}
+            {% endfor %}
+        {% endfor %}
+        {% for error in form.non_field_errors %}
+                {{ error|escape }}
+        {% endfor %}
+    </div>
+{% endif %}
+{% if messages %}
+    {% for message in messages %}
+            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }} {% endif %} alert-dismissible">
+                <div class="alert-body">
+                    {% if message.tags != 'warning' %}<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span> &times; </span></button>{% endif %}
+                    <span>{{ message|safe }}</span>
+                </div>
+            </div>
+    {% endfor %}
+{% endif %}

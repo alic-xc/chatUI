@@ -1,0 +1,91 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Login</title>
+    <style>
+        *{
+            padding:0px;
+            margin:0px;
+            font-family: "Roboto", "Lucida Grande", "DejaVu Sans", "Bitstream Vera Sans", Verdana, Arial, sans-serif;
+        }
+        body{
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+        }
+        .container{
+            padding:20px;
+            border:1px solid #ddd;
+        }
+        .container input{
+            border:1px solid #ddd;
+            padding:5px;
+            margin-bottom: 5px;
+            width:300px;
+        }
+        .container label{
+            display: block;
+
+        }
+        .container button {
+            padding:5px;
+        }
+        .alert{
+            border:1px solid;
+            padding:10px;
+            margin-bottom:10px;
+        }
+        .alert-danger{
+            background: red;
+            color:white
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+                {% include 'accounts/error_manager.html' %}
+
+        <form method="post">
+            {% csrf_token %}
+            <div>
+                <label>First Name:</label>
+                <input type="text" name="first_name" >
+            </div>
+            <div>
+                <label>Last Name:</label>
+                <input type="text" name="last_name" >
+            </div>
+            <div>
+                <label>Email:</label>
+                <input type="text" name="email" >
+            </div>
+            <div>
+                <label>Username:</label>
+                <input type="text" name="username" >
+            </div>
+            <div>
+                <label>Password:</label>
+                <input type="password" name="password" >
+            </div>
+            <div>
+                <label>confirm password</label>
+                <input type="password" name="confirm_password">
+            </div>
+            <div>
+                <button type="submit">Register</button>
+            </div>
+        </form>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function(){
+            document.querySelector('.close').onclick = function(){
+              document.querySelector('.alert').style.display = "none"
+            }
+        })
+    </script>
+</body>
+</html>

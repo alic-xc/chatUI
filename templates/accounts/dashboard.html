@@ -1,0 +1,60 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Login</title>
+    <style>
+        *{
+            padding:0px;
+            margin:0px;
+            font-family: "Roboto", "Lucida Grande", "DejaVu Sans", "Bitstream Vera Sans", Verdana, Arial, sans-serif;
+        }
+        body{
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+        }
+        .container{
+            padding:20px;
+            border:1px solid #ddd;
+        }
+         input{
+            border:1px solid #ddd;
+            padding:5px;
+             margin-top:10px;
+            margin-bottom: 5px;
+            width:300px;
+        }
+
+        .container button {
+            padding:5px;
+        }
+        li{
+            padding:3px;
+            list-style-type: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+                {% include 'accounts/error_manager.html' %}
+        <h4>Available Room</h4>
+        {% for room in rooms.data %}
+            <li><a href="{% url 'chat_room' room.title %}">{{ room.title }}</a></li>
+            {% empty %}
+            <span>No room available.</span>
+        {% endfor %}
+        <hr/>
+        <form method="post">
+            {% csrf_token %}
+            <input type="text" name="title" placeholder="Enter room name" />
+            <div>
+                <button type="submit">Create Room</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

@@ -1,0 +1,210 @@
+{% load customer_custom_tags %}
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Login</title>
+    <style>
+        *{
+            padding:0px;
+            margin:0px;
+            font-family: "Roboto", "Lucida Grande", "DejaVu Sans", "Bitstream Vera Sans", Verdana, Arial, sans-serif;
+        }
+        body{
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+        }
+        .container{
+            padding:20px;
+            border:1px solid #ddd;
+        }
+        .container .msg-container{
+            width:300px;
+            margin:5px;
+        }
+        .msg-container .header{
+            padding:10px;
+            background-color:#191d42;
+            color:white;
+        }
+        .header .date{
+            font-size: 10px;
+        }
+
+        .content{
+            padding:5px;
+            background: #c3c4cd;
+            height:50px
+        }
+        .footer{
+           background: #191d42;
+            color: white;
+            padding:5px;
+        }
+        input{
+            padding:10px;
+            width:250px;
+        }
+        #chat-message-submit{
+            padding:10px;
+        }
+        #chat-log{
+            height: 500px;
+            overflow: scroll;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+                {% include 'accounts/error_manager.html' %}
+        <h4>Chat</h4>
+        <div id="chat-log">
+            {% for chat in chats.data %}
+                <div id="{{ chat.message_id }}" class="msg-container">
+                    <div class="header"><b>{{ chat.user.username }}</b> <span class="date">{{ chat.timestamp|string_to_date }}</span></div>
+
+                    <p class="content">{{ chat.message }}</p>
+
+                    {% if chat.user.username == user.0.username %}
+                    <div class="footer">
+                        <p>message status: {% if chat.read_status %}<span class="status" style="color:green">read</span>{% else %}<span class="status" style="color:grey">delivered</span>{% endif %}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+        <input type="text" id="chat-message-input" placeholder="Type anything" />
+        <input type="hidden" id="chat-room" value="{{ room_name }}">
+        <input type="hidden" id="username" value="{{ user.0.username }}">
+            <button type="submit" id="chat-message-submit">Send</button>
+    </div>
+
+    {{ room_name|json_script:"room-name" }}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script>
+        function scrollToBottom(){
+            const elem = document.querySelector('#chat-log')
+            elem.scrollTop = elem.scrollHeight;
+        }
+        $(document).ready(function(){
+            scrollToBottom()
+        })
+
+        var messages = [] // store all message id received
+        const roomName = JSON.parse(document.getElementById('room-name').textContent);
+
+        const chatSocket = new WebSocket(
+            'ws://'
+            + '127.0.0.1:8090'
+            + '/ws/chat/'
+            + roomName
+            + '/'
+        );
+        document.addEventListener("visibilitychange", function(){
+            $(window).focus(function() {
+                for(let i=0;i < messages.length; i++){
+                    updateMessage(chatSocket, messages[i])
+                }
+                messages = []
+            })
+
+        })
+        // onmessage - An event listener to be called when a message is received from the server.
+        chatSocket.onmessage = function(e) {
+            // JSON.parse() converts the JSON object back into the original object,
+            // then examine and act upon its contents.
+            const username = document.querySelector('#username').value;
+            const data = JSON.parse(e.data);
+            if(data.action_type == 'new' && data.username != username){
+                $(window).focus(function() { updateMessage(chatSocket, data)})
+                $(window).blur(function() {
+                    messages.push({"message_id":data.message_id, "username": data.username})
+                });
+
+            }
+            if(data.action_type == 'update' && data.username == username){
+                const msgContainer = document.querySelector(`#${data.message_id}`)
+                const statusHTML = msgContainer.querySelector('.status')
+                statusHTML.innerHTML = "read"
+                statusHTML.style.color = "green"
+            }
+
+            const dataHTML = `<div class='msg-container' id='${data.message_id}'><div class=header><b>${data.username}</b> <span class='date'>${dateFormatter(data.timestamp)}<span/></div><p class='content'>${data.message}</p> ${(data.username == username)?"<div class='footer'><p>message status: <span class='status'>delivered</span></p></div>":''} </div>`
+            document.querySelector('#chat-log').innerHTML += dataHTML;
+            scrollToBottom()
+        };
+
+        // onclose - An event listener to be called when the connection is closed.
+        chatSocket.onclose = function(e) {
+            console.error('Chat socket closed unexpectedly');
+        };
+        chatSocket
+        document.querySelector('#chat-message-input').focus();
+        document.querySelector('#chat-message-input').onkeyup = function(e) {
+            if (e.keyCode === 13) {  // enter, return
+                document.querySelector('#chat-message-submit').click();
+            }
+        };
+
+        document.querySelector('#chat-message-submit').onclick = function(e) {
+            const messageInputDom = document.querySelector('#chat-message-input');
+            const room = document.querySelector('#chat-room').value;
+            const username = document.querySelector('#username').value;
+            const message = messageInputDom.value;
+
+            // Send the msg object as a JSON-formatted string.
+            chatSocket.send(JSON.stringify({
+                'message': message,
+                'room': room,
+                'username': username,
+                'message_id': getRandomString(15)
+            }));
+
+            // Blank the text input element, ready to receive the next line of text from the user.
+            messageInputDom.value = '';
+        };
+
+        function dateFormatter(date) {
+            const newDate  = new Date(date)
+            let options = {
+                year: "numeric",
+                month: "long",
+                weekday: "long",
+                hour: "numeric",
+                minute: "numeric",
+            }
+
+        return Intl.DateTimeFormat("en-US", options).format(newDate)
+        }
+
+        function getRandomString(length) {
+            const randomChars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+            let result = '';
+            for ( let i = 0; i < length; i++ ) {
+                result += randomChars.charAt(Math.floor(Math.random() * randomChars.length));
+            }
+            return result;
+        }
+
+        function updateMessage(socket, data){
+            $.ajax({
+                    url: '/update_chat/' + data.message_id + '/',
+                    method: 'post',
+                    success: function(response){
+                        socket.send(JSON.stringify({
+                                'message_id': data.message_id,
+                                'username': data.username,
+                                'read': true,
+                            })
+                        )
+                    }
+                })
+        }
+    </script>
+
+</body>
+</html>
