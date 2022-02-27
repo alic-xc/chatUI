@@ -38,7 +38,6 @@
         }
     </style>
 </head>
-<body>
     <div class="container">
                 {% include 'accounts/error_manager.html' %}
         <h4>Available Room</h4>
@@ -55,6 +54,7 @@
                 <button type="submit">Create Room</button>
             </div>
         </form>
+        <a href="{% url 'logout' %}">Logout</a>
     </div>
 </body>
 </html>
