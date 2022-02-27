@@ -124,6 +124,6 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-API_END_POINT = 'http://127.0.0.1:8090'
+API_END_POINT = 'http://0.0.0.0:8900'
 
 SUCCESS_CODES = [200, 201]
