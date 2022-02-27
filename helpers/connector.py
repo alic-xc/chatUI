@@ -7,7 +7,7 @@ def api_connector(request, endpoint, method, params):
     try:
         """ Check if a user token is available else use API_TOKEN to authenticate """
         token = request.session['session_token']
-        headers = {"Content-Type": "application/json", "Authorization": "Bearer " + token }
+        headers = {"Content-Type": "application/json", "Authorization": "Token " + token }
 
     except KeyError as err:
         headers = {"Content-Type": "application/json"}
