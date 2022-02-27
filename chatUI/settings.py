@@ -131,6 +131,6 @@ PRODUCTION = config('PRODUCTION')
 
 SUCCESS_CODES = [200, 201]
 
-if PRODUCTION:
-    import django_heroku
-    django_heroku.settings(locals())
+# if PRODUCTION:
+#     import django_heroku
+#     django_heroku.settings(locals())
