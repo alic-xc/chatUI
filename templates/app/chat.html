@@ -98,8 +98,8 @@
         const roomName = JSON.parse(document.getElementById('room-name').textContent);
 
         const chatSocket = new WebSocket(
-            'ws://'
-            + '127.0.0.1:8090'
+            '{% if https %}wss://{% else %}ws://{% endif %}'
+            + '{{ chat_endpoint }}'
             + '/ws/chat/'
             + roomName
             + '/'

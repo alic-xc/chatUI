@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import messages
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
@@ -79,7 +80,7 @@ class LoginView(generic.FormView):
 
         if conn['success']:
 
-            self.request.session['session_token'] = conn['data']['access']
+            self.request.session['session_token'] = conn['data']['token']
 
         else:
             error_handler(self.request, conn['data'])
@@ -124,6 +125,8 @@ class ChatRoomView(AuthenticateMixin, UserContextMixin, TemplateView):
         context = super().get_context_data()
         context['room_name'] = self.kwargs.get('title')
         context['chats'] = connect_room_messages(self.request, context['room_name'])
+        context['chat_endpoint'] = str(settings.API_END_POINT).split("//")[-1]
+        context['https'] = True if str(settings.API_END_POINT).startswith("https://") else False
         return context
 
 @csrf_exempt
