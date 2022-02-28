@@ -182,7 +182,7 @@
         }
 
         function getRandomString(length) {
-            const randomChars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+            const randomChars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
             let result = '';
             for ( let i = 0; i < length; i++ ) {
                 result += randomChars.charAt(Math.floor(Math.random() * randomChars.length));
