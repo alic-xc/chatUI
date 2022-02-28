@@ -7,6 +7,7 @@ urlpatterns = [
     path('account/register', RegisterView.as_view(), name='register'),
     path('', DashboardView.as_view(), name='dashboard'),
     path('chat_room/<title>', ChatRoomView.as_view(), name='chat_room'),
+    path('join_room', join_chat, name='join_chat'),
     path('update_chat/<message_id>/', update_chat)
 ]
 

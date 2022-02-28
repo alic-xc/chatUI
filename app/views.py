@@ -111,6 +111,7 @@ class DashboardView(AuthenticateMixin, UserContextMixin, generic.FormView):
         if not conn['success']:
             error_handler(self.request, conn['data'])
             return super().form_invalid(form)
+
         messages.success(self.request, "Chat Room created successfully")
         return super().form_valid(form)
 
@@ -139,6 +140,13 @@ def update_chat(request, message_id):
             return JsonResponse(data={"error": "Chat not updated successfully"}, status=400)
     else:
         return JsonResponse(data={"error": "Method not allowed"}, status=405)
+
+
+@csrf_exempt
+def join_chat(request):
+    if request.method == 'POST':
+        chat_room = request.POST['chat_room']
+        return redirect(reverse('chat_room', args=[chat_room]))
 
 
 def logout(request):
